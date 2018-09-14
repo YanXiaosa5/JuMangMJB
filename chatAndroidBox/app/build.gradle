@@ -1,0 +1,106 @@
+apply plugin: 'com.android.application'
+apply plugin: 'walle'
+
+walle {
+    // 指定渠道包的输出路径
+    apkOutputFolder = new File("${project.buildDir}/outputs/channels");
+    // 定制渠道包的APK的文件名称
+    apkFileNameFormat = '${appName}-${packageName}-${channel}-${buildType}-v${versionName}-${versionCode}-${buildTime}.apk';
+    // 渠道配置文件
+    channelFile = new File("${project.getProjectDir()}/channel")
+}
+
+android {
+    compileSdkVersion 22
+    flavorDimensions "versionCode"
+    buildToolsVersion '27.0.3'
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 22
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    signingConfigs {
+        fangyuan {
+            storeFile file("../key_fangyuan.jks")
+            storePassword "fangyuan"
+            keyAlias "fangyuan"
+            keyPassword "fangyuan"
+        }
+    }
+
+    buildTypes {
+        release {
+            // 混淆
+            minifyEnabled false
+            // Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.fangyuan
+        }
+
+        debug {
+            signingConfig signingConfigs.fangyuan
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    productFlavors {
+        fangyuan {
+            applicationId "com.baitu.fangyuan"
+            signingConfig signingConfigs.fangyuan
+        }
+
+        productFlavors.all { flavor ->
+            flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation 'com.meituan.android.walle:library:1.1.6'
+    implementation 'com.android.support:support-v4:22.2.1'
+
+    //okdownload
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.liulishuo.okdownload:okhttp:1.0.4'
+    implementation 'com.liulishuo.okdownload:okdownload:1.0.4'
+    implementation 'com.liulishuo.okdownload:sqlite:1.0.4'
+
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+
+    implementation 'com.umeng.sdk:common:latest.integration'
+    implementation 'com.umeng.sdk:common:latest.integration'
+    implementation 'com.umeng.sdk:analytics:latest.integration'
+    implementation 'com.umeng.sdk:common:1.5.0'
+    implementation 'com.umeng.sdk:analytics:7.5.0'
+}
