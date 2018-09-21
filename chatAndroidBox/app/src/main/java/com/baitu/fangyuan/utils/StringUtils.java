@@ -1,11 +1,16 @@
 package com.baitu.fangyuan.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Base64;
 
+import com.baitu.fangyuan.MyApplication;
+import com.baitu.fangyuan.SplashActivity;
 import com.baitu.fangyuan.encry.aes.AesException;
 
 import java.io.File;
@@ -59,8 +64,18 @@ public class StringUtils {
      * @return
      */
     public static boolean isAvilible(Context context, String packageName) {
+
+        if(context == null){
+            context = MyApplication.getInstance();
+        }
+
         final PackageManager packageManager = context.getPackageManager();//获取packagemanager
         List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);//获取所有已安装程序的包信息
+
+        if(pinfo == null){
+            return false;
+        }
+
         List<String> pName = new ArrayList<String>();//用于存储所有已安装程序的包名
         //从pinfo中将包名字逐一取出，压入pName list中
         if (pinfo != null) {
@@ -95,5 +110,25 @@ public class StringUtils {
         }
     }
 
+    /**
+     * 调用其它App
+     * @param context
+     * @param packageName
+     */
+    public static void launchApp(Context context,String packageName){
+
+        if(context == null){
+            context = MyApplication.getInstance();
+        }
+
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+
+        if(context instanceof Activity){
+        }else{
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        context.startActivity(intent);
+
+    }
 
 }

@@ -22,6 +22,30 @@ public class ADBean implements Serializable {
     private int enableCheck;
     private int checked;
 
+    public ADBean() {
+    }
+
+    public ADBean(String downloadUrl, String packageName, int sortNum, String adName, String adIcon, int enableCheck, int checked, boolean isInstall) {
+        this.downloadUrl = downloadUrl;
+        this.packageName = packageName;
+        this.sortNum = sortNum;
+        this.adName = adName;
+        this.adIcon = adIcon;
+        this.enableCheck = enableCheck;
+        this.checked = checked;
+        this.isInstall = isInstall;
+    }
+
+    public ADBean(String downloadUrl, String packageName, int sortNum, String adName, String adIcon, int enableCheck, int checked) {
+        this.downloadUrl = downloadUrl;
+        this.packageName = packageName;
+        this.sortNum = sortNum;
+        this.adName = adName;
+        this.adIcon = adIcon;
+        this.enableCheck = enableCheck;
+        this.checked = checked;
+    }
+
     /**
      * 是否已经安装
      */

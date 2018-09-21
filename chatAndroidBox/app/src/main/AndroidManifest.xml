@@ -30,7 +30,7 @@
         android:theme="@style/AppTheme.NoActionBar">
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".MainActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/application_name"
             android:screenOrientation="portrait"

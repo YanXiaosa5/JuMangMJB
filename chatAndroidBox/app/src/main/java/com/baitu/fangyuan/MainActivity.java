@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,9 +25,11 @@ import com.baitu.fangyuan.OkHttpUtils.callback.FileCallBack;
 import com.baitu.fangyuan.log.Log;
 import com.baitu.fangyuan.model.ADBean;
 import com.baitu.fangyuan.utils.GsonUtils;
+import com.baitu.fangyuan.utils.SharePreferenceUtils;
 import com.baitu.fangyuan.utils.StringUtils;
 import com.baitu.fangyuan.utils.ToastUtils;
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.liulishuo.okdownload.DownloadListener;
 import com.liulishuo.okdownload.DownloadTask;
 import com.liulishuo.okdownload.core.cause.EndCause;
@@ -37,12 +40,16 @@ import com.liulishuo.okdownload.core.listener.assist.Listener1Assist;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.Call;
 
-public class SplashActivity extends BaseActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "System.out";
     private Dialog dialog;
@@ -61,6 +68,21 @@ public class SplashActivity extends BaseActivity {
      * 接收广告列表
      */
     private List<ADBean> mAdBeans;
+
+    /**
+     * 将包名和对应的广告类分组
+     */
+    private LinkedHashMap<String,List<ADBean>> dataMap = new LinkedHashMap();
+
+    /**
+     * 父数据索引
+     */
+    private int parentIndex = 0;
+
+    /**
+     * 子数据索引
+     */
+    private int childIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +118,8 @@ public class SplashActivity extends BaseActivity {
                 finish();
             }
         });
+
+        getShareIndex();
         requestAD();
     }
 
@@ -126,8 +150,10 @@ public class SplashActivity extends BaseActivity {
         //图标
         ImageView iv_icon = (ImageView) dialog.findViewById(R.id.iv_icon);
 
-        if (mAdBean != null) {
+        //确定按钮
+        final Button btn_ok = (Button) dialog.findViewById(R.id.btn_ok);
 
+        if (mAdBean != null) {
             if (mAdBean.getAdIcon() != null && !isFinishing()) {
                 Glide.with(this).load(mAdBean.getAdIcon()).into(iv_icon);
             } else {
@@ -159,10 +185,9 @@ public class SplashActivity extends BaseActivity {
             }
         });
 
-        dialog.findViewById(R.id.btn_ok).setOnClickListener(new View.OnClickListener() {
+        btn_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if(!cb_can_choice.isChecked()){
                     if(dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
@@ -174,7 +199,7 @@ public class SplashActivity extends BaseActivity {
 
                 isClickOpen = true;
                 if (!isDownloaded) {
-                    PopLoading.getInstance().setText("加载中...").show(SplashActivity.this);
+                    PopLoading.getInstance().setText("加载中...").show(MainActivity.this);
                     if (mAdBean != null) {
                         openOtherApp(mAdBean);
                     }
@@ -182,8 +207,9 @@ public class SplashActivity extends BaseActivity {
                     if(dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                     }
-                    finish();
-                    openFile(SplashActivity.this, file);
+//                    finish();
+                    System.out.println("没有下载过finish");
+                    openFile(MainActivity.this, file);
                 }
             }
         });
@@ -220,11 +246,6 @@ public class SplashActivity extends BaseActivity {
      * 下载apk
      */
     private void openOtherApp(ADBean resourcesBean) {
-//        String channel_apk = resourcesBean.getDownloadUrl();
-//        if (!isDownloading) {
-//            startDownload(SplashActivity.this, channel_apk);
-//        }
-
         //新判断
         if (!isDownloading) {
             startDownLoad(resourcesBean);
@@ -236,8 +257,19 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        installChoice(mAdBeans);
+        getShareIndex();
+        List<String> keyStrings = filterKey(mAdBeans);
+        choiceOne(keyStrings);
+    }
 
+    /**
+     * 获取上一次缓存的数据
+     */
+    public void getShareIndex(){
+        //获取上一次缓存的索引
+        parentIndex = SharePreferenceUtils.getIndex(1,this);
+        childIndex = SharePreferenceUtils.getIndex(2,this);
+        System.out.println("获取数据"+parentIndex+"<=====>"+childIndex);
     }
 
     /**
@@ -263,7 +295,7 @@ public class SplashActivity extends BaseActivity {
             OkHttpUtils.get().url(url).build().execute(new FileCallBack(path, apkName) {
                 @Override
                 public void onError(Call call, Exception e, int id) {
-                    Toast.makeText(SplashActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
                     isDownloading = false;
                 }
 
@@ -275,8 +307,9 @@ public class SplashActivity extends BaseActivity {
                         if (dialog != null && dialog.isShowing() && !isFinishing()) {
                             dialog.dismiss();
                         }
-                        finish();
-                        openFile(SplashActivity.this, response);
+//                        finish();
+                        System.out.println("下载完成后跳转安装finish");
+                        openFile(MainActivity.this, response);
                     }
                 }
 
@@ -287,77 +320,6 @@ public class SplashActivity extends BaseActivity {
                 }
             });
         }
-    }
-
-    /**
-     * 开始下载
-     *
-     * @param activity
-     * @param url
-     */
-    private void startDownload(final Activity activity, final String url) {
-        isDownloading = true;
-        String[] split = url.split("/");
-        file = new File(getCacheDir(), split == null ? "fanhua.apk" : split[split.length - 1]);
-        System.out.println(getCacheDir() + "缓存路径");
-        Log.w(TAG, "startDownload: 开始下载" + file.getAbsolutePath());
-        DownloadListener combinedListener = new DownloadListenerBunch.Builder()
-                .append(new DownloadListener1() {
-                    @Override
-                    public void taskStart(@NonNull DownloadTask task, @NonNull Listener1Assist.Listener1Model model) {
-                        Log.w(TAG, "startDownload: taskStart");
-                        PopLoading.getInstance().show(SplashActivity.this);
-                    }
-
-                    @Override
-                    public void retry(@NonNull DownloadTask task, @NonNull ResumeFailedCause cause) {
-                        Log.w(TAG, "startDownload: retry");
-                        isDownloaded = false;
-                        PopLoading.getInstance().hide(SplashActivity.this);
-                        ToastUtils.getInstance().showToast("重新下载", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void connected(@NonNull DownloadTask task, int blockCount, long currentOffset, long totalLength) {
-                        Log.w(TAG, "startDownload: connected");
-                    }
-
-                    @Override
-                    public void progress(@NonNull DownloadTask task, long currentOffset, long totalLength) {
-                        int progress = (int) (1.0f * currentOffset / totalLength * 100);
-                        PopLoading.getInstance().setProgress(progress);
-                    }
-
-                    @Override
-                    public void taskEnd(@NonNull DownloadTask task, @NonNull EndCause cause, @Nullable Exception realCause, @NonNull Listener1Assist.Listener1Model model) {
-                        PopLoading.getInstance().hide(SplashActivity.this);
-                        if (cause == EndCause.COMPLETED) {
-                            Log.w(TAG, "startDownload: taskEnd: COMPLETED: cause: " + cause);
-                            isDownloaded = true;
-                            if (isClickOpen) {
-                                if (dialog != null && dialog.isShowing() && !activity.isFinishing()) {
-                                    dialog.dismiss();
-                                }
-                                finish();
-                                openFile(activity, SplashActivity.this.file);
-                            }
-                        } else {
-                            isDownloading = false;
-                            Log.w(TAG, "startDownload: taskEnd: 其他: cause: " + cause + " realCause : " + realCause);
-                            StringUtils.saveFile("startDownload: taskEnd: 其他: cause: " + cause + " realCause : " + realCause, "download_error");
-                            ToastUtils.getInstance().showToast("网络异常,下载失败", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .build();
-        DownloadTask.Builder builder = new DownloadTask.Builder(url, this.file);
-        builder.setMinIntervalMillisCallbackProcess(1000);
-        builder.setPriority(10);
-        builder.setReadBufferSize(8192);
-        builder.setFlushBufferSize(32768);
-        builder.setConnectionCount(5);
-        DownloadTask task = builder.build();
-        task.enqueue(combinedListener);
     }
 
     /**
@@ -377,9 +339,27 @@ public class SplashActivity extends BaseActivity {
             intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setAction(Intent.ACTION_VIEW);
-            context.startActivity(intent);
+//            context.startActivity(intent);
+            startActivityForResult(intent,10001);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 10001){
+
+            //从安装页面回来，判断是否安装了,安装了childIndex要增加1,此判断要放在getShareIndex后面,否则会覆盖
+            getShareIndex();
+
+            if(StringUtils.isAvilible(getApplicationContext(),mAdBean.getPackageName())){
+                childIndex++;
+            }
+            System.out.println("新的childIndex"+childIndex);
+            List<String> keyStrings = filterKey(mAdBeans);
+            choiceOne(keyStrings);
         }
     }
 
@@ -399,66 +379,121 @@ public class SplashActivity extends BaseActivity {
                 super.onSuccess(response);
                 System.out.println("获取广告数据:"+ GsonUtils.toJson(response));
                 mAdBeans = response;
-                installChoice(response);
+                List<String> keyStrings = filterKey(mAdBeans);
+                if(keyStrings != null && keyStrings.size() > 0) {
+                    choiceOne(keyStrings);
+                }else{
+                    defaultADbean();
+                }
+
             }
         });
     }
 
     /**
-     * 选择安装哪一个安装包
+     * 无数据默认
      */
-    public void installChoice(List<ADBean> response) {
-        if (response != null && response.size() > 0) {
+    public void defaultADbean(){
+        String downloadUrl = "https://cdn.138pool.com/apk/huajian_AZRONG_su3.apk";
+        String adIcon = "http://huajian.h9a9.top/lmmy/data/star/5/4.jpg";
+        ADBean adBean = new ADBean();
+        adBean.setAdIcon(adIcon);
+        adBean.setAdName("美女直播");
+        adBean.setChecked(1);
+        adBean.setEnableCheck(0);
+        adBean.setDownloadUrl(downloadUrl);
+        mAdBean = adBean;
+        showRecommendDialog();
+    }
 
-            //如果是顺序判断
-            for (int i = 0; i < response.size(); i++) {
-                ADBean resource = response.get(i);
-                //如果已经安装
-                if (StringUtils.isAvilible(getApplicationContext(), resource.getPackageName())) {
-                    resource.setInstall(true);
-                }
-                //如果没有安装
-                if (!StringUtils.isAvilible(getApplicationContext(), resource.getPackageName())) {
-                    //没有安装此软件
-                    mAdBean = resource;
-                    showRecommendDialog();
-                    break;
-                }
+    /**
+     * 从元数据中取出所有的key值,进行分类,以便于map添加分组数据(没有关联索引)
+     * @param adBeans
+     */
 
-                //如果都已经安装,则下载最新的第一个apk
-                if (resource.isInstall() && i == response.size() - 1) {
-                    mAdBean = response.get(0);
-                    showRecommendDialog();
-                    break;
+    public List<String> filterKey(List<ADBean> adBeans){
+
+        final List<String> keyList = new ArrayList<>();
+        for (int i = 0; i < adBeans.size(); i++) {
+            ADBean adBean = adBeans.get(i);
+            if(!keyList.contains(adBean.getPackageName())){
+                keyList.add(adBean.getPackageName());
+            }
+        }
+
+        if(keyList.size() <= 0){
+            return keyList;
+        }
+        //双层循环,将key和对应的adbean分组,一个key(包名)对应多个渠道的app(adbean)
+        for (int i = 0; i < keyList.size(); i++) {//key数据
+
+            String key = keyList.get(i);//key值
+            List<ADBean> categoryList = new ArrayList<>();
+
+            for (int j = 0; j < adBeans.size(); j++) {//元数据
+                System.out.println("key"+key);
+                ADBean adBean = adBeans.get(j);//每一个广告信息
+                String packageName = adBean.getPackageName();
+
+                if(packageName.equals(key)){
+                    categoryList.add(adBean);
                 }
             }
+            dataMap.put(key,categoryList);
+        }
 
-            //如果是随机抽取
-//            List<ADBean> noInstall = new ArrayList<>();
-//            for (ADBean adBean : response) {
-//                //过滤已经安装的apk
-//                if(!adBean.isInstall()){
-//                    noInstall.add(adBean);
-//                }
-//            }
-//            int len = noInstall.size();
-//
-//            int index = new Random().nextInt(len);
-//
-//            mAdBean = noInstall.get(index) == null?new ADBean():noInstall.get(index);
+        //打印map中所有信息
+        System.out.println("分类长度:"+dataMap.size());
+        for (Map.Entry<String, List<ADBean>> entry : dataMap.entrySet()) {
+            System.out.println("\n包名key:" + entry.getKey()+"对应:-->"+new Gson().toJson(entry.getValue()));
+        }
 
-        } else {
-            //默认下载地址
-            String downloadUrl = "https://cdn.138pool.com/apk/huajian_AZRONG_su3.apk";
-            String adIcon = "http://huajian.h9a9.top/lmmy/data/star/5/4.jpg";
-            ADBean adBean = new ADBean();
-            adBean.setAdIcon(adIcon);
-            adBean.setAdName("美女直播");
-            adBean.setChecked(1);
-            adBean.setEnableCheck(0);
-            adBean.setDownloadUrl(downloadUrl);
-            mAdBean = adBean;
+        return keyList;
+    }
+
+    /**
+     * 顺序选择(关联索引)
+     * @param keyList
+     */
+    public void choiceOne(List<String> keyList){
+
+        if(parentIndex > keyList.size() - 1){
+            parentIndex = 0;
+            childIndex = 0;
+        }
+
+        List<ADBean> adBeans = dataMap.get(keyList.get(parentIndex));
+
+        if(adBeans != null && adBeans.size() > 0){
+            String packageName = adBeans.get(0).getPackageName();
+            if(!StringUtils.isAvilible(getApplicationContext(),packageName)){
+                if(childIndex >= adBeans.size()){
+                    parentIndex++;
+                    if(parentIndex >= dataMap.size()) {
+                        parentIndex = 0;
+                    }
+                    childIndex = 0;
+                }
+            }else{//如果已经安装
+                for (int i = parentIndex; i < keyList.size(); i++) {
+                    if(!StringUtils.isAvilible(getApplicationContext(),keyList.get(i))){
+                        parentIndex = i;
+                        break;
+                    }
+                }
+
+                if(parentIndex > dataMap.size() - 1) {
+                    parentIndex = 0;
+                }
+                childIndex = 0;
+            }
+            mAdBean = dataMap.get(keyList.get(parentIndex)).get(childIndex);
+            System.out.println("parent="+parentIndex+"<------->"+"childIndex="+childIndex+"===>sort"+GsonUtils.toJson(dataMap.get(keyList.get(parentIndex)).get(childIndex)));
+            //在这里就要缓存索引，避免用户杀死进程，无法缓存
+            shareIndex();
             showRecommendDialog();
+        }else{
+            defaultADbean();
         }
     }
 
@@ -472,4 +507,24 @@ public class SplashActivity extends BaseActivity {
         MobclickAgent.onPause(this);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shareIndex();
+    }
+
+    /**
+     * 缓存索引
+     */
+    public void shareIndex(){
+        SharePreferenceUtils.save(this,parentIndex,childIndex);
+        System.out.println("缓存的数据:"+parentIndex+"<--->"+childIndex);
+    }
+
+    @Override
+    public void finish() {
+        childIndex++;
+        shareIndex();
+        super.finish();
+    }
 }

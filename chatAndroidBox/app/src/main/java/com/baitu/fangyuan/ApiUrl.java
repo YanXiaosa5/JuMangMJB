@@ -31,10 +31,9 @@ public class ApiUrl {
     public static void adList(Callback callback){
         Map<String, String> params = new HashMap<>();
         params.put("appKey", APP_KEY);
-//        params.put("channelId", "fangyuan130");
-        params.put("channelId", MyApplication.CHANNEL_NAME);
+//        params.put("channelId", MyApplication.CHANNEL_NAME);
+        params.put("channelId", "fangyuan130");
         StringUtils.saveFile(MyApplication.CHANNEL_NAME,"channelId");
-        System.out.println("参数"+ GsonUtils.toJson(params));
         HttpTaskUtil.doJsonTask(APPLICATION_LIST, new Gson().toJson(params), callback);
     }
 
