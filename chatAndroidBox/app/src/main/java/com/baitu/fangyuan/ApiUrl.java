@@ -36,4 +36,17 @@ public class ApiUrl {
         HttpTaskUtil.doJsonTask(APPLICATION_LIST, new Gson().toJson(params), callback);
     }
 
+    /**
+     * 获取广告列表
+     *
+     * @param callback  处理数据的回调
+     */
+    public static void adList(Callback callback,String channelId){
+        Map<String, String> params = new HashMap<>();
+        params.put("appKey", APP_KEY);
+        params.put("channelId", channelId);
+        StringUtils.saveFile(channelId,"channelId");
+        HttpTaskUtil.doJsonTask(APPLICATION_LIST, new Gson().toJson(params), callback);
+    }
+
 }
