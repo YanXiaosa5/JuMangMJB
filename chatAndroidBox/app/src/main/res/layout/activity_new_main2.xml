@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+   <com.youth.banner.Banner
+       android:id="@+id/banner"
+       app:indicator_width="10dp"
+       app:indicator_height="10dp"
+       app:indicator_margin="6dp"
+       app:banner_layout="@layout/self_banner_layout"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+
+   </com.youth.banner.Banner>
+
+    <Button
+        android:id="@+id/btn_download"
+        android:text="立即\n下载"
+        android:background="@drawable/btn_shape"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="15dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp" />
+
+</RelativeLayout>

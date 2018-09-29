@@ -1,7 +1,5 @@
 package com.baitu.fangyuan.encry.aes;
 
-
-
 import android.util.Base64;
 
 import java.nio.charset.Charset;

@@ -1,5 +1,6 @@
 package com.baitu.fangyuan.model;
 
+import java.io.File;
 import java.io.Serializable;
 
 public class ADBean implements Serializable {
@@ -50,6 +51,29 @@ public class ADBean implements Serializable {
      * 是否已经安装
      */
     private boolean isInstall;
+
+    /**
+     * 是否已经下载
+     */
+    private boolean isDownLoad;
+
+    private File downLoadFile;
+
+    public File getDownLoadFile() {
+        return downLoadFile;
+    }
+
+    public void setDownLoadFile(File downLoadFile) {
+        this.downLoadFile = downLoadFile;
+    }
+
+    public boolean isDownLoad() {
+        return isDownLoad;
+    }
+
+    public void setDownLoad(boolean downLoad) {
+        isDownLoad = downLoad;
+    }
 
     public boolean isInstall() {
         return isInstall;

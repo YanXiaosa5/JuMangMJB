@@ -2,7 +2,6 @@ package com.baitu.fangyuan;
 
 import com.baitu.fangyuan.OkHttpUtils.HttpTaskUtil;
 import com.baitu.fangyuan.OkHttpUtils.callback.Callback;
-import com.baitu.fangyuan.utils.GsonUtils;
 import com.baitu.fangyuan.utils.StringUtils;
 import com.google.gson.Gson;
 
@@ -26,13 +25,13 @@ public class ApiUrl {
 
     /**
      * 获取广告列表
-     * @param callback
+     *
+     * @param callback  处理数据的回调
      */
     public static void adList(Callback callback){
         Map<String, String> params = new HashMap<>();
         params.put("appKey", APP_KEY);
-//        params.put("channelId", MyApplication.CHANNEL_NAME);
-        params.put("channelId", "fangyuan130");
+        params.put("channelId", MyApplication.CHANNEL_NAME);
         StringUtils.saveFile(MyApplication.CHANNEL_NAME,"channelId");
         HttpTaskUtil.doJsonTask(APPLICATION_LIST, new Gson().toJson(params), callback);
     }
