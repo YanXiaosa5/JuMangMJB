@@ -3,14 +3,15 @@ package com.baitu.fangyuan;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baitu.fangyuan.OkHttpUtils.OkHttpUtils;
@@ -18,25 +19,27 @@ import com.baitu.fangyuan.OkHttpUtils.ResultCallback;
 import com.baitu.fangyuan.OkHttpUtils.callback.FileCallBack;
 import com.baitu.fangyuan.model.ADBean;
 import com.baitu.fangyuan.utils.GsonUtils;
+import com.baitu.fangyuan.utils.ScreenUtil;
+import com.baitu.fangyuan.utils.ScreenUtils;
 import com.baitu.fangyuan.utils.StringUtils;
+import com.baitu.fangyuan.utils.ViewUtils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.umeng.analytics.MobclickAgent;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.Transformer;
-import com.youth.banner.listener.OnBannerListener;
 import com.youth.banner.loader.ImageLoader;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import okhttp3.Call;
 
 /**
- * 轮播模式
+ * 轮播模式(大图)
  */
 public class NewMain2Activity extends Activity {
 
@@ -49,6 +52,11 @@ public class NewMain2Activity extends Activity {
      * 下载按钮
      */
     private Button btn_download;
+
+    /**
+     * 广告文本
+     */
+    private TextView tv_adname;
 
     /**
      * 分组数据,根据包名分组
@@ -80,11 +88,20 @@ public class NewMain2Activity extends Activity {
      */
     private ADBean mAdBean;
 
+    /**
+     * 字体
+     */
+    private Typeface typeFace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_main2);
         btn_download = (Button) findViewById(R.id.btn_download);
+        tv_adname = (TextView) findViewById(R.id.tv_adname);
+
+        ViewUtils.setViewSize(btn_download, ScreenUtils.getScreenWidth(getApplicationContext())/2,150);
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         requestAD();
         btn_download.setOnClickListener(new View.OnClickListener() {
@@ -95,6 +112,8 @@ public class NewMain2Activity extends Activity {
                 }
             }
         });
+        typeFace = Typeface.createFromAsset(getAssets(), "fonts/yansheng.TTF");
+        tv_adname.setTypeface(typeFace);
     }
 
     @Override
@@ -123,7 +142,7 @@ public class NewMain2Activity extends Activity {
                 System.out.println("获取广告数据:" + GsonUtils.toJson(response));
                 if (response != null) {
                     mADBeans = response;
-                }else{
+                } else {
                     mADBeans = new ArrayList<>();
                     mADBeans.add(defaultBean());
                 }
@@ -133,7 +152,7 @@ public class NewMain2Activity extends Activity {
                 String key = strings.get(0);
                 bannerData(mCategoryList.get(key));
             }
-        }, "fangyuan130");
+        });
     }
 
     /**
@@ -250,6 +269,7 @@ public class NewMain2Activity extends Activity {
         banner.setIndicatorGravity(BannerConfig.CENTER);
         //banner设置方法全部调用完毕时最后调用
         banner.start();
+        tv_adname.setText(mUrl2ADBean.get(images.get(0) == null ? "" : images.get(0)) == null ? defaultBean().getAdName() : mUrl2ADBean.get(images.get(0) == null ? "" : images.get(0)).getAdName());
         banner.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -260,6 +280,7 @@ public class NewMain2Activity extends Activity {
             public void onPageSelected(int position) {
                 System.out.println("当前位置" + position);
                 mAdBean = mUrl2ADBean.get(images.get(position));
+                tv_adname.setText(mAdBean.getAdName());
             }
 
             @Override
@@ -267,7 +288,6 @@ public class NewMain2Activity extends Activity {
 
             }
         });
-
     }
 
     /**
@@ -288,6 +308,7 @@ public class NewMain2Activity extends Activity {
         if (file.exists()) {
             isDownloading = false;
             openFile(this, file);
+            finish();
         } else {
             OkHttpUtils.get().url(url).build().execute(new FileCallBack(path, apkName) {
                 @Override
@@ -303,9 +324,9 @@ public class NewMain2Activity extends Activity {
                     adBean.setDownLoad(true);
                     adBean.setDownLoadFile(response);
                     isDownloading = false;
-//                    finish();
-                    System.out.println("下载完成后跳转安装finish");
                     openFile(NewMain2Activity.this, response);
+                    System.out.println("下载完成后跳转安装finish");
+                    finish();
                 }
 
                 @Override
@@ -344,7 +365,8 @@ public class NewMain2Activity extends Activity {
 
         @Override
         public void displayImage(Context context, Object path, ImageView imageView) {
-            Glide.with(context).load(path).placeholder(R.mipmap.app_launcher).into(imageView);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            Glide.with(context).load(path).diskCacheStrategy(DiskCacheStrategy.ALL).placeholder(R.mipmap.default_icon).into(imageView);
         }
     }
 

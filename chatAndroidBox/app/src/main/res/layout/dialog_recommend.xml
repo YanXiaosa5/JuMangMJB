@@ -32,8 +32,10 @@
                 android:padding="10dp"
                 android:src="@drawable/ic_close"
                 android:textColor="@color/black" />
+
         </RelativeLayout>
 
+        <!--图片显示和标题显示-->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

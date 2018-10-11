@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Base64;
+import android.widget.TextView;
 
 import com.baitu.fangyuan.MyApplication;
 import com.baitu.fangyuan.SplashActivity;
@@ -108,6 +110,11 @@ public class StringUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void setLeftIcon(TextView textView,Drawable drawable){
+       drawable.setBounds(0,0,100,100);
+       textView.setCompoundDrawables(drawable,null,null,null);
     }
 
     /**

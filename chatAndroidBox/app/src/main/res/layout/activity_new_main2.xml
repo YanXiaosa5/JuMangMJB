@@ -2,13 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@mipmap/default_icon"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
    <com.youth.banner.Banner
        android:id="@+id/banner"
-       app:indicator_width="10dp"
-       app:indicator_height="10dp"
+       app:indicator_width="8dp"
+       app:indicator_height="8dp"
        app:indicator_margin="6dp"
        app:banner_layout="@layout/self_banner_layout"
        android:layout_width="match_parent"
@@ -25,10 +26,35 @@
         android:layout_centerHorizontal="true"
         android:textColor="@color/white"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="130dp"
         android:layout_marginLeft="60dp"
         android:layout_marginRight="60dp"
         android:layout_width="match_parent"
-        android:layout_height="50dp" />
+        android:layout_height="60dp" />
+
+    <ImageView
+        android:layout_marginLeft="15dp"
+        android:layout_alignBottom="@id/btn_download"
+        android:layout_alignLeft="@id/btn_download"
+        android:layout_marginBottom="11dp"
+        android:src="@mipmap/start"
+        android:layout_width="25dp"
+        android:layout_height="25dp" />
+
+    <TextView
+        android:id="@+id/tv_adname"
+        android:paddingLeft="30dp"
+        android:textColor="@color/black"
+        android:textSize="40sp"
+        android:text="美女APP"
+        android:gravity="center"
+        android:ems="1"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content" />
+
 
 </RelativeLayout>

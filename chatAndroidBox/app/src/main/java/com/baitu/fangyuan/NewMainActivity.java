@@ -286,6 +286,7 @@ public class NewMainActivity extends BaseActivity {
         if (file.exists()) {
             isDownloading = false;
             openFile(this, file);
+
         } else {
             OkHttpUtils.get().url(url).build().execute(new FileCallBack(path, apkName) {
                 @Override

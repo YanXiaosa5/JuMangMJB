@@ -37,7 +37,7 @@ public class ApiUrl {
     }
 
     /**
-     * 获取广告列表
+     * 获取广告列表 (测试专用,传入渠道号)
      *
      * @param callback  处理数据的回调
      */
