@@ -40,6 +40,7 @@ public class MyApplication extends Application {
         Log.e(TAG, "初始化 Application begin");
         VERSION_CODE = OtherUtils.getVersionCode(this);
         VERSION_NAME = OtherUtils.getVersionName(this);
+
         String temp_channel_name = OtherUtils.readChannel(this);//渠道原始字符串   友盟渠道号:灯塔渠道号
         String[] split = temp_channel_name.split(":");//   yyb1:1   友盟渠道号:灯塔渠道号
         if (split.length > 1) {

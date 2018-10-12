@@ -1,6 +1,5 @@
 package com.baitu.fangyuan;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,8 +7,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -22,36 +19,24 @@ import android.widget.Toast;
 import com.baitu.fangyuan.OkHttpUtils.OkHttpUtils;
 import com.baitu.fangyuan.OkHttpUtils.ResultCallback;
 import com.baitu.fangyuan.OkHttpUtils.callback.FileCallBack;
-import com.baitu.fangyuan.log.Log;
 import com.baitu.fangyuan.model.ADBean;
 import com.baitu.fangyuan.utils.GsonUtils;
 import com.baitu.fangyuan.utils.SharePreferenceUtils;
 import com.baitu.fangyuan.utils.StringUtils;
-import com.baitu.fangyuan.utils.ToastUtils;
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.liulishuo.okdownload.DownloadListener;
-import com.liulishuo.okdownload.DownloadTask;
-import com.liulishuo.okdownload.core.cause.EndCause;
-import com.liulishuo.okdownload.core.cause.ResumeFailedCause;
-import com.liulishuo.okdownload.core.listener.DownloadListener1;
-import com.liulishuo.okdownload.core.listener.DownloadListenerBunch;
-import com.liulishuo.okdownload.core.listener.assist.Listener1Assist;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.Call;
 
 /**
  * @date: 2018/9/26
- * 每次都会切换,下载后排除已经下载的项
+ * 每次都会切换(第一种没下载也会切换第二种),下载后排除已经下载的项
  */
 public class MainActivity extends BaseActivity {
 

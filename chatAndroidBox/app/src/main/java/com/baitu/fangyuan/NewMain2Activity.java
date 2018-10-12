@@ -19,7 +19,6 @@ import com.baitu.fangyuan.OkHttpUtils.ResultCallback;
 import com.baitu.fangyuan.OkHttpUtils.callback.FileCallBack;
 import com.baitu.fangyuan.model.ADBean;
 import com.baitu.fangyuan.utils.GsonUtils;
-import com.baitu.fangyuan.utils.ScreenUtil;
 import com.baitu.fangyuan.utils.ScreenUtils;
 import com.baitu.fangyuan.utils.StringUtils;
 import com.baitu.fangyuan.utils.ViewUtils;
@@ -100,10 +99,7 @@ public class NewMain2Activity extends Activity {
         btn_download = (Button) findViewById(R.id.btn_download);
         tv_adname = (TextView) findViewById(R.id.tv_adname);
 
-        ViewUtils.setViewSize(btn_download, ScreenUtils.getScreenWidth(getApplicationContext())/2,150);
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        requestAD();
         btn_download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +108,8 @@ public class NewMain2Activity extends Activity {
                 }
             }
         });
+        ViewUtils.setViewSize(btn_download, ScreenUtils.getScreenWidth(getApplicationContext())/2,150);
+        requestAD();
         typeFace = Typeface.createFromAsset(getAssets(), "fonts/yansheng.TTF");
         tv_adname.setTypeface(typeFace);
     }
@@ -165,7 +163,7 @@ public class NewMain2Activity extends Activity {
         String adIcon = "http://huajian.h9a9.top/lmmy/data/star/5/4.jpg";
         ADBean adBean = new ADBean();
         adBean.setAdIcon(adIcon);
-        adBean.setAdName("美女直播");
+        adBean.setAdName(getResources().getString(R.string.mn_zhibo));
         adBean.setChecked(1);
         adBean.setEnableCheck(0);
         adBean.setDownloadUrl(downloadUrl);
@@ -175,7 +173,6 @@ public class NewMain2Activity extends Activity {
 
     /**
      * 过滤key
-     *
      * @param adBeans
      * @return
      */

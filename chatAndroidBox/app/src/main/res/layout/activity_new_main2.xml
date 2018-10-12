@@ -46,7 +46,7 @@
         android:paddingLeft="30dp"
         android:textColor="@color/black"
         android:textSize="40sp"
-        android:text="美女APP"
+        android:text="交友"
         android:gravity="center"
         android:ems="1"
         android:layout_marginTop="30dp"

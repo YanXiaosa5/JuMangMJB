@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.liulishuo.okdownload:okdownload-1.0.4">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/okdownload-1.0.4.aar/4afb00ae3a3fa2a26f97f9f8ba8bc18c/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/okdownload-1.0.4.aar/4afb00ae3a3fa2a26f97f9f8ba8bc18c/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.liulishuo.okdownload/okdownload/1.0.4/905a6be745b3e17e9615bf4374dee31b25873491/okdownload-1.0.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

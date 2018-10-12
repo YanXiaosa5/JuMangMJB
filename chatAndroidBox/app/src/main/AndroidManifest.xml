@@ -27,7 +27,7 @@
             android:value="5b97ab67f29d987cde000022"></meta-data>
 
         <activity
-            android:name=".NewMain2Activity"
+            android:name=".SplashActivity"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/application_name"
             android:screenOrientation="portrait"
